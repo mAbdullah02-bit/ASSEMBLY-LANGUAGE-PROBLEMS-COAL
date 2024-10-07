@@ -4,7 +4,7 @@ mov ax,0
 mov bx,0
 mov cx,10
 
-LOOP1:
+LOOP1: ; loop
 
 add ax,[nums+bx]
 add bx,2
