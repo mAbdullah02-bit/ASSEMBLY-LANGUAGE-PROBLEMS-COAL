@@ -9,7 +9,8 @@ add bx,2
 
 cmp ax,9
 jne l1
-l2:
+l2:; loop
+ 
 mov dx,[num+bx]
 sub cx,2
 cmp dx,2
