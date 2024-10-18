@@ -1,105 +1,106 @@
 [org 0x0100]
 jmp start
-arr: dw 5,6,8,l,9,2,8
-size: 6 
-swapper:db 0
 
-swap: 
-push ax
-mov ax,[bx+si]
-xchg ax,[bx+si+2]
-mov [bx+si],ax
-pop ax
-ret
+arr: dw 5,6,8,1,9,2,8   
+size: dw 7             
+swapper: dw 0
+
+swap:
+    push ax
+    mov ax, [bx+si]
+    xchg ax, [bx+si+2]
+    mov [bx+si], ax
+    pop ax
+    ret
 
 bubblesort:
-push bx
-push cx
-push ax
-push dx
-push si
-mov bx,0
+    push bx
+    push cx
+    push ax
+    push dx
+    push si
+    mov cx, [bp+4]     
+    shl cx, 1         
 
-mov cx,[bp-2]
-mov si,[bp+6]
+outerloop:
+    mov byte [bp-4], 0
+    xor bx, bx       
+    xor si, si
 
-L1:
-mov byte [bp-4],0
+innerloop:
+    cmp bx, cx
+    jge skip_outer     
+    mov ax, [si+bx]
+    cmp ax, [si+bx+2]
+    jbe noswap
+    call swap         
+    mov byte [bp-4], 1 
 
-L2: mov ax,[si+bx]
-cmp ax,[si+bx+2]
-jbe noswap
-call swap
-mov byte [bp-4],1
 noswap:
-add si,2
-cmp si,cxjne innerloop
-cmp byte [bp-4],1
-jz L1
-pop si
-pop dx 
-pop ax
-pop cx
-pop bx
-ret
+    add bx, 2
+    cmp bx, cx
+    jl innerloop
 
-statsofarr: 
-push bp
-mov bp,sp
-mov cx,[bp+4]
-shl cx
-push cx
-push swapper
-call bubblesort
-pop di
-push si
-mov si,[bp+6]
+skip_outer:
+    cmp byte [bp-4], 1
+    jz outerloop       
 
+    
+    mov ax, [si]       
+    mov bx, [si+cx-2]  
 
+    pop si
+    pop dx
+    pop ax
+    pop cx
+    pop bx
+    ret
 
-mov ax,[bp+4]
-div 2
-cmp dx ,0
-jne odd
+statsofarr:
+    push bp
+    mov bp, sp
+    mov cx, [bp+4]     
+    shl cx, 1        
 
-shl ax
-mov bx,ax
-mov ax,[si+bx]
-add ax,[si+bx+2]
-div 2
-mov cx,ax
+    call bubblesort    
 
-odd: 
-shl ax
-mov bx
-mov cx,[si+bx]
+    mov si, [bp+6]     
 
-mov ax,[si]
-mov bx,[si+di]
+   
+    mov ax, [bp+4]
+    test ax, 1         
+    jnz odd            
 
-pop si
-pop bp
-push ax
-push bx
-push cx
-ret
+even:
+    mov ax, [bp+4]     
+    shr ax, 1          
+    shl ax, 1          
+    mov bx, ax
+    mov ax, [si+bx]    
+    add ax, [si+bx+2]  
+    shr ax, 1         
+    mov cx, ax         
+    jmp done
+
+odd:
+    mov ax, [bp+4]     
+    shr ax, 1          
+    shl ax, 1          
+    mov bx, ax
+    mov cx, [si+bx]    
+
+done:
+    pop bp
+    ret
+
 start:
-mov bx,arr
-push bx
-mov cx,[size]
-push cx
-call statsofarr
+    mov bx, arr
+    push bx
+    mov cx, [size]
+    push cx
+    call statsofarr
+    pop cx
+    pop bx
 
-jmp 
-
- mov ax,0x4c00
- int 0x21
-
-
-
-
-
-
-
-
-
+    mov ax, 0x4c00
+    int 0x21
