@@ -9,7 +9,8 @@ swapper: db 0
 swap:
     push ax
     mov ax, [si+bx]     
-    mov [si+bx], ax     
+    xchg [si+bx+2], ax   
+    mov [si+bx],ax  
     pop ax
     ret 
 
@@ -18,9 +19,9 @@ bubblesort:
     push si
     push cx
     push bx
-    mov cx, [bp-4] 
+    mov cx, [bp-6] 
     sub cx,2     
-   mov si,[bp+4]      
+   mov si,[bp+6]      
        
 L1:
     mov byte [swapper], 0       
@@ -34,48 +35,45 @@ L2:
     call swap           
 
 no_swap:
-    add bx, 2          
-    cmp bx, cx
-    jne L2
-    cmp byte [swapper], 1      
-    jz L1
+    add bx, 2           
+    cmp bx, cx           
+    jne L2               
 
+    cmp byte [swapper], 1 
+    jz L1                 
+
+   
+    mov ax, [si]        
+    push bx
+    mov bx, cx           
+    mov dx, [si+bx]      
+    pop bx
 
     pop bx
     pop cx
     pop si
-    
-    mov ax, [si]
-  push bx
-    mov bx,cx 
-    sub bx,2     
-    mov dx, [si+bx]
-        
-pop bx
-
-push ax
-push dx
-
-   ret
+    ret
 
 
 
 statsofarr:
     push bp
     mov bp, sp
-    mov cx, [bp+2]       
+    mov cx, [bp+4]       
     shl cx, 1            
 
-    call bubblesort     
+    call bubblesort    
+    push ax
+    push dx 
 come:
-    mov si, [bp+4]       
-    mov ax, [bp+2]      
+    mov si, [bp+6]       
+    mov ax, [bp+4]      
 
     test ax, 1           
     jnz odd              
 
 even:
-    mov ax, [bp+2]     
+    mov ax, [bp+4]     
     shr ax, 1        
       shl ax,1      
     mov bx, ax
@@ -87,13 +85,14 @@ even:
     jmp done
 
 odd:
-    mov ax, [bp+2]      
+    mov ax, [bp+4]      
     shr ax, 1           
     shl ax, 1           
     mov bx, ax           
     mov cx, [si+bx]     
 
 done:
+
 pop bx
 pop ax
 pop bp
