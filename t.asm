@@ -1,49 +1,49 @@
 [org 0x0100]
 jmp start
 
-sensors: dw 0x8855, 0x0581
-alerts: dw 0,0
-criticalalert: dw 0,0
-warningalert: dw 0,0
-infoalert: dw 0,0
+num: dw 11
+sum: dw 0
 
-count_ones:
-mov ax,[sensors+bx]
+printsum: 
 
-L1:shl ax,1
-jnc skip
-call categorize_alerts
-
+L1:
+mov ax,1
+xor si,si
+add si,cx
+add si,bx
+L2:
+cmp ax,bx
+ja skip
+add word [sum],ax
+mov dx,ax
+dec dx
+jmp skip1
 skip:
-dec cx
-cmp cx,0
-jne L1
-ret
 
-
-categorize_alerts: add word [alerts+bx],1
-dec cx
-cmp cx,12
-jge critical
-cmp cx,8
-jge warning
-add word [infoalert+bx],1
-jmp return
-warning: add word [warningalert+bx],1
-jmp return
-critical: add word [criticalalert+bx],1
-return: 
+add word [sum],dx
+dec dx
+skip1:
+inc ax
+cmp ax,si
+jbe L2
 inc cx
+inc bx
+cmp bx,[num]
+jbe L1
+
 ret
 
 start:
-xor cx,cx
-xor bx,bx
-mov cx,16
-call count_ones
-add bx,2
-mov cx,16
-call count_ones
+
+mov cx,0
+mov dx,0
+mov bx,1
+mov ax,1
+
+call printsum
+
+mov ax,[sum]
+
  mov ax,0x4c00
  int 0x21
 
