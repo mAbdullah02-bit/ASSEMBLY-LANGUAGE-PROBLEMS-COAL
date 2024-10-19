@@ -1,7 +1,7 @@
 [org 0x0100]
 jmp start
 
-num: dw 11
+num: dw 6
 sum: dw 0
 
 printsum: 
@@ -34,6 +34,9 @@ jbe L1
 ret
 
 start:
+mov ax,[num]
+add ax,5
+xchg ax,[num]
 
 mov cx,0
 mov dx,0
