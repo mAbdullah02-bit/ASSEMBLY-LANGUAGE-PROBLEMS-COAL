@@ -1,111 +1,57 @@
-
-
 [org 0x0100]
 jmp start
 
-arr: dw 5,6,8,1,9,2   
-size: dw 6              
-swapper: db 0           
-swap:
-    push ax
-    mov ax, [si+bx]     
-    xchg [si+bx+2], ax   
-    mov [si+bx],ax  
-    pop ax
-    ret 
+sensors: dw 0x8855, 0x0581
+alerts: dw 0,0
+criticalalert: dw 0,0
+warningalert: dw 0,0
+infoalert: dw 0,0
 
-bubblesort:
+count_ones:
+mov ax,[sensors+bx]
 
-    push si
-    push cx
-    push bx
-    mov cx, [bp-6] 
-    sub cx,2     
-   mov si,[bp+6]      
-       
-L1:
-    mov byte [swapper], 0       
-    mov bx, 0           
+L1:shl ax,1
+jnc skip
+call categorize_alerts
 
-L2:
-    mov ax, [si+bx]     
-    cmp ax, [si+bx+2]   
-    jbe no_swap         
-    mov byte [swapper], 1      
-    call swap           
-
-no_swap:
-    add bx, 2           
-    cmp bx, cx           
-    jne L2               
-
-    cmp byte [swapper], 1 
-    jz L1                 
-
-   
-    mov ax, [si]        
-    push bx
-    mov bx, cx           
-    mov dx, [si+bx]      
-    pop bx
-
-    pop bx
-    pop cx
-    pop si
-    ret
+skip:
+dec cx
+cmp cx,0
+jne L1
+ret
 
 
-
-statsofarr:
-    push bp
-    mov bp, sp
-    mov cx, [bp+4]       
-    shl cx, 1            
-
-    call bubblesort    
-    push ax
-    push dx 
-come:
-    mov si, [bp+6]       
-    mov ax, [bp+4]      
-
-    test ax, 1           
-    jnz odd              
-
-even:
-    mov ax, [bp+4]     
-    shr ax, 1        
-      shl ax,1      
-    mov bx, ax
-    mov ax, [si+bx]   
-   
-    add ax, [si+bx-2]   
-    shr ax, 1            
-    mov cx, ax           
-    jmp done
-
-odd:
-    mov ax, [bp+4]      
-    shr ax, 1           
-    shl ax, 1           
-    mov bx, ax           
-    mov cx, [si+bx]     
-
-done:
-
-pop bx
-pop ax
-pop bp
-    ret
-
+categorize_alerts: add word [alerts+bx],1
+dec cx
+cmp cx,12
+jge critical
+cmp cx,8
+jge warning
+add word [infoalert+bx],1
+jmp return
+warning: add word [warningalert+bx],1
+jmp return
+critical: add word [criticalalert+bx],1
+return: 
+inc cx
+ret
 
 start:
-    mov si, arr          
-    push si
-    mov cx, [size]       
-    push cx
-    call statsofarr     
-  
+xor cx,cx
+xor bx,bx
+mov cx,16
+call count_ones
+add bx,2
+mov cx,16
+call count_ones
+ mov ax,0x4c00
+ int 0x21
 
-    mov ax, 0x4c00      
-    int 0x21          
+
+
+
+
+
+
+
+
