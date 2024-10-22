@@ -10,7 +10,8 @@ mov cx,[bp+4]
 dec cx
 shl cx,1
 mov ax,[bx]
-mov dx,[bx+cx]
+mov si,cx
+mov dx,[bx+si]
 mov si,16
 checkbit:
 shl dx,1
@@ -44,7 +45,7 @@ push si
 mov cx,[bp+4]
 mov bx,[bp+6]
 dec cx
-shl cx
+shl cx,1
 L1:
 mov si,0
 mov byte [swaper],0
