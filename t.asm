@@ -1,57 +1,61 @@
 [org 0x0100]
 jmp start
+message: db 'Hello world'
+length: dw 11
 
-num: dw 11
-sum: dw 0
+clrscr:
+    push es
+    push ax
+    push di
+    mov ax, 0xb800
+    mov es, ax
+    mov di, 0
+nextloc:
+    mov word [es:di], 0x0720
+    add di, 2
+    cmp di, 4000
+    jne nextloc
+    pop di
+    pop ax
+    pop es
+    ret
 
-printsum: 
+printmessage:
+    push bp
+    mov bp, sp
+    push ax
+    push bx
+    push di
+    push es
 
+    mov ax, 0xb800
+    mov es, ax
+    mov si, [bp+6]
+    mov cx, [bp+4]
+
+    mov di, 220
+    mov ah, 0x07  
 L1:
-mov ax,1
-xor si,si
-add si,cx
-add si,bx
-L2:
-cmp ax,bx
-ja skip
-add word [sum],ax
-mov dx,ax
-dec dx
-jmp skip1
-skip:
+    mov al, [si]      
+    mov [es:di], ax   
+    inc si         
+    add di, 2         
+    loop L1           
 
-add word [sum],dx
-dec dx
-skip1:
-inc ax
-cmp ax,si
-jbe L2
-inc cx
-inc bx
-cmp bx,[num]
-jbe L1
-
-ret
+    pop es
+    pop di
+    pop bx
+    pop ax
+    pop bp
+    ret
 
 start:
+    mov ax, message
+    mov bx, [length]
+    push bx
+    push ax
+    call clrscr
+    call printmessage
 
-mov cx,0
-mov dx,0
-mov bx,1
-mov ax,1
-
-call printsum
-
-mov ax,[sum]
-
- mov ax,0x4c00
- int 0x21
-
-
-
-
-
-
-
-
-
+    mov ax, 0x4c00
+    int 0x21
